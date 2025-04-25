@@ -62,18 +62,26 @@ plot(grid_intercept_values,log_lik,type="l")
 
 #### model with a single predictor ####
 
+#### Define the true values of the parameters 
+
 intercept = 0.5
 
 slope =1 
 
+#### set the seed for reproducibility 
+
 set.seed(55405)
+
 age <- rpois(n,5)
+
+#### Simulate the data 
 
 p1 = exp(intercept+slope*age)/(1+exp(intercept+slope*age))
 
 binomial_data1 <- rbinom(n,size=1,prob=p1)
 
 
+#### Define the log likelihood function 
 
 log_lik_fun1 <- function(par,data,predictor)
 {
@@ -89,6 +97,8 @@ log_lik_fun1 <- function(par,data,predictor)
   
   
 }
+
+#### Estimate the parameters using the optim function 
 
 par_est <- optim(c(0,0),log_lik_fun1,data=binomial_data1,predictor=age,control= list(fnscale=-1))$par
 
