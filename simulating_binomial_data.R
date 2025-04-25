@@ -1,21 +1,40 @@
-##### define true values #####
+#### The following code will simulate data & estimate the parameters 
+#### using the optim function 
+
+
+#### Model with only intercept term 
+
+#### define true values of the parameters #####
 intercept = 0.5
 
-slope =1 
+n <- 1000000
 
-##### simulate the data #### 
+ 
+#### set seed for reproducibility 
+set.seed(55405)
+#### generate a covariate 
+age <- runif(n,0,100)
+
+#### simulate the data #### 
 p = exp(intercept)/(1+exp(intercept))
 
-binomial_data <- rbinom(1000,size=1,prob=p)
+binomial_data <- rbinom(n,size=1,prob=p)
 
 
+#### Write the log likelihood function 
 
-log_lik_fun <- function(beta_0,data)
+log_lik_fun <- function(beta_0,data,age)
 {
+  
+ 
+  
+  
+  
+  
   
   n = length(data)
   
-  sum(data * (beta_0-log(1+exp(beta_0))) + (1-data) * (-1*log(1+exp(beta_0)))) 
+  sum(data * (beta_0 -log(1+exp(beta_0))) + (1-data) * (-1*log(1+exp(beta_0)))) 
   
   
   
@@ -23,8 +42,12 @@ log_lik_fun <- function(beta_0,data)
   
 }
 
-optim(0,log_lik_fun,data=binomial_data,control= list(fnscale=-1))
+#### Optimize the parameters using the optim function
+#### Note fnscale=-1 turns it into a maximization problem 
 
+intercept_estimate <- optim(0,log_lik_fun,age=age,data=binomial_data,control= list(fnscale=-1))$par 
+
+#### Plotting the log likelihood function over a grid of values 
 
 grid_intercept_values <- seq(0,2,0.01)
 
@@ -37,17 +60,18 @@ plot(grid_intercept_values,log_lik,type="l")
 
 
 
-#### model with 1 predictor ####
+#### model with a single predictor ####
 
 intercept = 0.5
 
 slope =1 
 
-age <- rpois(10000,5)
+set.seed(55405)
+age <- rpois(n,5)
 
 p1 = exp(intercept+slope*age)/(1+exp(intercept+slope*age))
 
-binomial_data1 <- rbinom(10000,size=1,prob=p1)
+binomial_data1 <- rbinom(n,size=1,prob=p1)
 
 
 
@@ -66,13 +90,15 @@ log_lik_fun1 <- function(par,data,predictor)
   
 }
 
-optim(c(0,0),log_lik_fun1,data=binomial_data1,predictor=age,control= list(fnscale=-1))
+par_est <- optim(c(0,0),log_lik_fun1,data=binomial_data1,predictor=age,control= list(fnscale=-1))$par
 
 
 #
 
-intercept_vals <- seq(0,2,0.01)
+#intercept_vals <- seq(0,2,0.01)
 
-log_lik1 <-sapply(c(slope_vals,intercept_vals),log_lik_fun1,data=binomial_data1,predictor=age)
+#slope_vals <- seq(0,2,0.01)
 
-plot(grid_intercept_values,log_lik1,type="l")
+#log_lik1 <-sapply(c(slope_vals,intercept_vals),log_lik_fun1,data=binomial_data1,predictor=age)
+
+#plot(intercept_vals,log_lik1,type="l")
